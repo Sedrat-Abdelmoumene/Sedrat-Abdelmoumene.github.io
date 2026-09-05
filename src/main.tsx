@@ -5,4 +5,5 @@ import './styles.css'
 import './project.css'
 import './skills.css'
 import './skill-icons.css'
+import './portrait.css'
 createRoot(document.getElementById('root')!).render(<StrictMode><App /></StrictMode>)

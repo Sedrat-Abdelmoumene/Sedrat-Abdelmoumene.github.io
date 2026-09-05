@@ -1,0 +1,4 @@
+/* Subtle profile-photo treatment. */
+.portrait{height:min(520px,48vw)}
+.portrait img{height:78%;max-width:82%;object-fit:contain}
+@media(max-width:760px){.portrait{height:330px}.portrait img{height:84%;max-width:88%}}
