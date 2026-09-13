@@ -7,4 +7,5 @@ import './skills.css'
 import './skill-icons.css'
 import './portrait.css'
 import './simple-theme.css'
+import './theme-toggle.css'
 createRoot(document.getElementById('root')!).render(<StrictMode><App /></StrictMode>)
