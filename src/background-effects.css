@@ -34,6 +34,12 @@
   overflow: hidden;
 }
 
+.hero-section {
+  --mouse-x: 78%;
+  --mouse-y: 22%;
+  --mouse-active: .38;
+}
+
 .hero-section::before {
   content: '';
   position: absolute;
@@ -52,14 +58,14 @@
   content: '';
   position: absolute;
   z-index: -1;
-  width: clamp(320px, 46vw, 700px);
-  aspect-ratio: 1;
-  right: -14%;
-  bottom: -38%;
-  border-radius: 50%;
+  inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle, rgba(137, 183, 211, .19), rgba(83, 112, 150, .06) 40%, transparent 70%);
-  animation: halo-float 12s ease-in-out infinite alternate;
+  opacity: var(--mouse-active);
+  background:
+    radial-gradient(150px circle at var(--mouse-x) var(--mouse-y), rgba(205, 232, 247, .22), transparent 70%),
+    radial-gradient(430px circle at var(--mouse-x) var(--mouse-y), rgba(86, 159, 201, .20), rgba(89, 101, 167, .07) 48%, transparent 72%);
+  transition: opacity .32s ease;
+  will-change: opacity, background;
 }
 
 .about-section,
@@ -146,11 +152,6 @@
   to { transform: translate3d(44vw, 12%, 0) scale(1.12); }
 }
 
-@keyframes halo-float {
-  from { transform: translate3d(0, 0, 0) scale(.96); }
-  to { transform: translate3d(-5%, -7%, 0) scale(1.06); }
-}
-
 @keyframes grid-drift {
   to { background-position: 64px 64px; }
 }
@@ -162,7 +163,9 @@
 }
 
 [data-theme='light'] .hero-section::after {
-  background: radial-gradient(circle, rgba(84, 132, 162, .15), rgba(126, 142, 169, .05) 42%, transparent 70%);
+  background:
+    radial-gradient(140px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, .55), transparent 68%),
+    radial-gradient(430px circle at var(--mouse-x) var(--mouse-y), rgba(65, 126, 161, .18), rgba(108, 103, 159, .05) 48%, transparent 72%);
 }
 
 [data-theme='light'] .featured-project {
@@ -171,8 +174,19 @@
 
 @media (max-width: 760px) {
   .hero-section::before { background-size: 42px 42px; }
+  .hero-section::after {
+    opacity: .42;
+    background: radial-gradient(340px circle at 72% 24%, rgba(91, 157, 195, .18), transparent 72%);
+  }
   .site-shell::before { width: 100vw; left: -50vw; }
   .services-section::after { opacity: .18; }
+}
+
+@media (hover: none) {
+  .hero-section::after {
+    opacity: .42;
+    background: radial-gradient(360px circle at 72% 24%, rgba(91, 157, 195, .18), transparent 72%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -180,6 +194,7 @@
   .hero-section::before,
   .hero-section::after {
     animation: none;
+    transition: none;
   }
 
   .featured-project {
