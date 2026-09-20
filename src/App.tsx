@@ -11,13 +11,11 @@ const marqueeSkills = skillGroups.flatMap(group => group.skills.map(([skill]) =>
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [active, setActive] = useState('home')
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') !== 'light')
   const [profileOpen, setProfileOpen] = useState(false)
 
   useEffect(() => {
-    document.documentElement.dataset.theme = darkMode ? 'dark' : 'light'
-    localStorage.setItem('theme', darkMode ? 'dark' : 'light')
-  }, [darkMode])
+    document.documentElement.dataset.theme = 'dark'
+  }, [])
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => event.key === 'Escape' && setProfileOpen(false)
@@ -95,7 +93,7 @@ export default function App() {
   }, [])
 
   return <div className="site-shell">
-    <header className="site-header"><nav className="nav-shell" aria-label="Primary navigation"><button className="wordmark" onClick={() => go('home')} aria-label="Go to home">M.</button><button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label="Toggle navigation"><span /><span /></button><div className={`nav-links ${menuOpen ? 'open' : ''}`}>{links.map(([label, id]) => <button key={id} className={active === id ? 'active' : ''} onClick={() => go(id)}>{label}</button>)}</div><button className="theme-toggle" onClick={() => setDarkMode(!darkMode)} aria-label={`Switch to ${darkMode ? 'light' : 'dark'} theme`} aria-pressed={darkMode}><span aria-hidden="true">{darkMode ? '☀' : '☾'}</span>{darkMode ? 'Light' : 'Dark'}</button></nav></header>
+    <header className="site-header"><nav className="nav-shell" aria-label="Primary navigation"><button className="wordmark" onClick={() => go('home')} aria-label="Go to home">M.</button><button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label="Toggle navigation"><span /><span /></button><div className={`nav-links ${menuOpen ? 'open' : ''}`}>{links.map(([label, id]) => <button key={id} className={active === id ? 'active' : ''} onClick={() => go(id)}>{label}</button>)}</div></nav></header>
     <main>
       <section id="home" className="hero-section"><div className="hero-title-wrap"><h1>Hi, I’m <span>Moumene</span></h1></div><button className="hero-portrait" onClick={() => setProfileOpen(true)} aria-label="Open a larger portrait of Sedrat Abdelmoumene"><img src={profileImage} alt="Sedrat Abdelmoumene" fetchPriority="high" decoding="async" /></button><div className="hero-bottom"><p>A web developer focused on useful, memorable digital experiences.</p><button className="pill-button" onClick={() => go('contact')}>Contact me <Arrow /></button></div></section>
       <section className="marquee-section" aria-label="Skills overview"><div className="marquee-track">{[...marqueeSkills, ...marqueeSkills].map((skill, i) => <span key={`${skill}-${i}`}>{skill}<b>•</b></span>)}</div><div className="marquee-track reverse">{[...marqueeSkills.slice().reverse(), ...marqueeSkills.slice().reverse()].map((skill, i) => <span key={`${skill}-${i}`}>{skill}<b>•</b></span>)}</div></section>
