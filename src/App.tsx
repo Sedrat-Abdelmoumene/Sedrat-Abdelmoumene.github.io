@@ -1,4 +1,4 @@
-import { useEffect, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useState } from 'react'
 import { site, skillGroups, gmailComposeUrl } from './data'
 import { Reveal } from './components/Reveal'
 import { Arrow } from './components/Icon'
@@ -33,20 +33,71 @@ export default function App() {
   }, [])
 
   const go = (id: string) => { setMenuOpen(false); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }) }
-  const moveHeroGlow = (event: ReactPointerEvent<HTMLElement>) => {
-    const bounds = event.currentTarget.getBoundingClientRect()
-    event.currentTarget.style.setProperty('--mouse-x', `${event.clientX - bounds.left}px`)
-    event.currentTarget.style.setProperty('--mouse-y', `${event.clientY - bounds.top}px`)
-    event.currentTarget.style.setProperty('--mouse-active', '1')
-  }
-  const restHeroGlow = (event: ReactPointerEvent<HTMLElement>) => {
-    event.currentTarget.style.setProperty('--mouse-active', '.38')
-  }
+  useEffect(() => {
+    const hero = document.getElementById('home')!
+    const allowed = window.matchMedia('(min-width: 761px) and (hover: hover) and (pointer: fine) and (not (any-pointer: coarse)) and (prefers-reduced-motion: no-preference)')
+    let frame = 0
+    let x = 0, y = 0, targetX = 0, targetY = 0, lastTime = 0
+    let active = false
+
+    const animate = (time: number) => {
+      const amount = 1 - Math.exp(-Math.min(time - lastTime, 64) / 65)
+      lastTime = time
+      x += (targetX - x) * amount
+      y += (targetY - y) * amount
+      hero.style.setProperty('--mouse-x', `${x}px`)
+      hero.style.setProperty('--mouse-y', `${y}px`)
+      frame = Math.hypot(targetX - x, targetY - y) > .2 ? requestAnimationFrame(animate) : 0
+    }
+    const stop = () => {
+      cancelAnimationFrame(frame)
+      frame = 0
+      active = false
+      hero.style.setProperty('--mouse-active', '0')
+    }
+    const move = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') return
+      const bounds = hero.getBoundingClientRect()
+      targetX = event.clientX - bounds.left
+      targetY = event.clientY - bounds.top
+      if (!active) {
+        x = targetX
+        y = targetY
+        active = true
+      }
+      hero.style.setProperty('--mouse-active', '1')
+      if (!frame) {
+        lastTime = performance.now()
+        frame = requestAnimationFrame(animate)
+      }
+    }
+    const configure = () => {
+      stop()
+      hero.removeEventListener('pointermove', move)
+      hero.removeEventListener('pointerleave', stop)
+      if (allowed.matches) {
+        hero.addEventListener('pointermove', move, { passive: true })
+        hero.addEventListener('pointerleave', stop)
+      }
+    }
+    configure()
+    allowed.addEventListener('change', configure)
+    window.addEventListener('blur', stop)
+    window.addEventListener('scroll', stop, { passive: true })
+    return () => {
+      stop()
+      allowed.removeEventListener('change', configure)
+      hero.removeEventListener('pointermove', move)
+      hero.removeEventListener('pointerleave', stop)
+      window.removeEventListener('blur', stop)
+      window.removeEventListener('scroll', stop)
+    }
+  }, [])
 
   return <div className="site-shell">
     <header className="site-header"><nav className="nav-shell" aria-label="Primary navigation"><button className="wordmark" onClick={() => go('home')} aria-label="Go to home">M.</button><button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label="Toggle navigation"><span /><span /></button><div className={`nav-links ${menuOpen ? 'open' : ''}`}>{links.map(([label, id]) => <button key={id} className={active === id ? 'active' : ''} onClick={() => go(id)}>{label}</button>)}</div><button className="theme-toggle" onClick={() => setDarkMode(!darkMode)} aria-label={`Switch to ${darkMode ? 'light' : 'dark'} theme`} aria-pressed={darkMode}><span aria-hidden="true">{darkMode ? '☀' : '☾'}</span>{darkMode ? 'Light' : 'Dark'}</button></nav></header>
     <main>
-      <section id="home" className="hero-section" onPointerMove={moveHeroGlow} onPointerLeave={restHeroGlow}><div className="hero-title-wrap"><h1>Hi, I’m <span>Moumene</span></h1></div><button className="hero-portrait" onClick={() => setProfileOpen(true)} aria-label="Open a larger portrait of Sedrat Abdelmoumene"><img src={profileImage} alt="Sedrat Abdelmoumene" fetchPriority="high" decoding="async" /></button><div className="hero-bottom"><p>A web developer focused on useful, memorable digital experiences.</p><button className="pill-button" onClick={() => go('contact')}>Contact me <Arrow /></button></div></section>
+      <section id="home" className="hero-section"><div className="hero-title-wrap"><h1>Hi, I’m <span>Moumene</span></h1></div><button className="hero-portrait" onClick={() => setProfileOpen(true)} aria-label="Open a larger portrait of Sedrat Abdelmoumene"><img src={profileImage} alt="Sedrat Abdelmoumene" fetchPriority="high" decoding="async" /></button><div className="hero-bottom"><p>A web developer focused on useful, memorable digital experiences.</p><button className="pill-button" onClick={() => go('contact')}>Contact me <Arrow /></button></div></section>
       <section className="marquee-section" aria-label="Skills overview"><div className="marquee-track">{[...marqueeSkills, ...marqueeSkills].map((skill, i) => <span key={`${skill}-${i}`}>{skill}<b>•</b></span>)}</div><div className="marquee-track reverse">{[...marqueeSkills.slice().reverse(), ...marqueeSkills.slice().reverse()].map((skill, i) => <span key={`${skill}-${i}`}>{skill}<b>•</b></span>)}</div></section>
       <section id="about" className="about-section section-pad"><Reveal><p className="section-kicker">01 / ABOUT</p><h2>About me</h2></Reveal><Reveal className="about-copy"><p>I enjoy turning early ideas into digital products people can actually use. I learn by building—working across web development, interface design, programming, AI tools, and interactive projects.</p><p>My goal is simple: make thoughtful work, solve practical problems, and keep improving with every project.</p><button className="pill-button" onClick={() => go('contact')}>Let’s work together <Arrow /></button></Reveal></section>
       <section id="skills" className="services-section section-pad"><Reveal><p className="section-kicker dark">02 / CAPABILITIES</p><h2>Skills &amp; Tools</h2></Reveal><div className="service-list">{skillGroups.map((group, index) => <Reveal key={group.title}><article className="service-row"><span className="service-number">0{index + 1}</span><div className="service-content"><h3>{group.title}</h3><p>{group.note}</p><div className="service-skills">{group.skills.map(([skill]) => <span key={skill}><i><SkillIcon name={skill} /></i>{skill}</span>)}</div></div></article></Reveal>)}</div></section>

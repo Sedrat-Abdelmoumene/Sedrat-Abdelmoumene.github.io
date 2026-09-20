@@ -35,9 +35,9 @@
 }
 
 .hero-section {
-  --mouse-x: 78%;
-  --mouse-y: 22%;
-  --mouse-active: .38;
+  --mouse-x: 0px;
+  --mouse-y: 0px;
+  --mouse-active: 0;
 }
 
 .hero-section::before {
@@ -58,14 +58,18 @@
   content: '';
   position: absolute;
   z-index: -1;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 860px;
+  height: 860px;
+  transform: translate3d(calc(var(--mouse-x) - 50%), calc(var(--mouse-y) - 50%), 0);
   pointer-events: none;
   opacity: var(--mouse-active);
   background:
-    radial-gradient(150px circle at var(--mouse-x) var(--mouse-y), rgba(205, 232, 247, .22), transparent 70%),
-    radial-gradient(430px circle at var(--mouse-x) var(--mouse-y), rgba(86, 159, 201, .20), rgba(89, 101, 167, .07) 48%, transparent 72%);
+    radial-gradient(150px circle, rgba(205, 232, 247, .22), transparent 70%),
+    radial-gradient(430px circle, rgba(86, 159, 201, .20), rgba(89, 101, 167, .07) 48%, transparent 72%);
   transition: opacity .32s ease;
-  will-change: opacity, background;
+  will-change: transform, opacity;
 }
 
 .about-section,
@@ -164,8 +168,8 @@
 
 [data-theme='light'] .hero-section::after {
   background:
-    radial-gradient(140px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, .55), transparent 68%),
-    radial-gradient(430px circle at var(--mouse-x) var(--mouse-y), rgba(65, 126, 161, .18), rgba(108, 103, 159, .05) 48%, transparent 72%);
+    radial-gradient(140px circle, rgba(255, 255, 255, .55), transparent 68%),
+    radial-gradient(430px circle, rgba(65, 126, 161, .18), rgba(108, 103, 159, .05) 48%, transparent 72%);
 }
 
 [data-theme='light'] .featured-project {
@@ -174,18 +178,14 @@
 
 @media (max-width: 760px) {
   .hero-section::before { background-size: 42px 42px; }
-  .hero-section::after {
-    opacity: .42;
-    background: radial-gradient(340px circle at 72% 24%, rgba(91, 157, 195, .18), transparent 72%);
-  }
   .site-shell::before { width: 100vw; left: -50vw; }
   .services-section::after { opacity: .18; }
 }
 
-@media (hover: none) {
+@media (max-width: 760px), (hover: none), (pointer: coarse), (any-pointer: coarse), (prefers-reduced-motion: reduce) {
   .hero-section::after {
-    opacity: .42;
-    background: radial-gradient(360px circle at 72% 24%, rgba(91, 157, 195, .18), transparent 72%);
+    display: none;
+    will-change: auto;
   }
 }
 
